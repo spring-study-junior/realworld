@@ -6,6 +6,8 @@ import com.study.realworld.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+
 @Service
 public class UserService {
     private final UserRepository userRepository;
@@ -15,6 +17,7 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public UserDTO save(UserDTO userDTO) {
         return new UserDTO(userRepository.save(new User(userDTO)));
     }

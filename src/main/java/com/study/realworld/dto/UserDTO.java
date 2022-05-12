@@ -6,7 +6,6 @@ import com.study.realworld.util.StringUtils;
 import lombok.*;
 
 @Data
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
