@@ -33,17 +33,10 @@ public class User {
     private String image;
 
     public User(UserDTO userDTO) {
-        this.username = () ? this.username : userDTO.getUsername();
-        if(StringUtils.isEmptyOrNull(userDTO.getUsername())){
-            throw new NoUserNameEmailPasswordException("필수 정보가 없습니다.");// 예외는 다른 패키지에 따로 생성 필요
-        }
-        if(StringUtils.isEmptyOrNull(userDTO.getPassword())){
-            throw new NoUserNameEmailPasswordException("필수 정보가 없습니다.");// 예외는 다른 패키지에 따로 생성 필요
-        }
-        if(StringUtils.isEmptyOrNull(userDTO.getEmail())){
-            throw new NoUserNameEmailPasswordException("필수 정보가 없습니다.");// 예외는 다른 패키지에 따로 생성 필요
-        }
-        this.bio = userDTO.getBio();
-        this.bio = userDTO.getImage();
+        this.username = (StringUtils.isEmptyOrNull(userDTO.getUsername())) ? this.username : userDTO.getUsername();
+        this.email = (StringUtils.isEmptyOrNull(userDTO.getEmail())) ? this.email : userDTO.getEmail();
+        this.password = (StringUtils.isEmptyOrNull(userDTO.getPassword())) ? this.password : userDTO.getPassword();
+        this.bio = (StringUtils.isEmptyOrNull(userDTO.getBio())) ? this.bio : userDTO.getBio();
+        this.image = (StringUtils.isEmptyOrNull(userDTO.getImage())) ? this.image : userDTO.getImage();
     }
 }
