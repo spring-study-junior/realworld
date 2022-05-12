@@ -1,5 +1,5 @@
-# RealWorld example apps
 
+![RealWorld example apps](README_images/realworld-dual-mode.png)
 ---
 
 ###  [API document](https://realworld-docs.netlify.app/docs/specs/backend-specs/introduction/)

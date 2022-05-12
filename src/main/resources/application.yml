@@ -1,24 +1,18 @@
-spring:
-  application:
-    name: realworld
-  messages:
-    basename: i18n/messages
-    encoding: UTF-8
-    cache-duration: PT1H
-  datasource:
-    platform: h2
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:real-world;MODE=MYSQL;DB_CLOSE_DELAY=-1
+spring: #띄어쓰기 없음
+  datasource: #띄어쓰기 2칸
+    url: jdbc:h2:tcp://localhost/~/jpashop #4칸
     username: sa
     password:
-    hikari:
-      minimum-idle: 1
-      maximum-pool-size: 5
-      pool-name: H2_DB
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+    driver-class-name: org.h2.Driver
 
-server:
-  port: 8080
+  jpa: #띄어쓰기 2칸
+    hibernate: #띄어쓰기 4칸
+      ddl-auto: create #띄어쓰기 6칸
+    properties: #띄어쓰기 4칸
+      hibernate: #띄어쓰기 6칸
+        show_sql: true #띄어쓰기 8칸
+        format_sql: true #띄어쓰기 8칸
+
+logging.level: #띄어쓰기 없음
+  org.hibernate.SQL: debug #띄어쓰기 2칸
+# org.hibernate.type: trace

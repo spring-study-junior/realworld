@@ -1,4 +1,4 @@
-package com.study.realworld;
+package springstudyjunior.realworld;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
