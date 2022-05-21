@@ -1,42 +1,42 @@
 package com.study.realworld.entity;
 
-import com.study.realworld.dto.UserDTO;
-import com.study.realworld.util.StringUtils;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import javax.persistence.*;
 
 @Entity
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Data
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 50)
+    @Column(length = 50, nullable = false)
     private String email;
 
-    @Column(length = 50)
+    @Column(length = 50, nullable = false)
     private String username;
 
-    @Column(length = 50)
+    @Column(nullable = false)
     private String password;
 
     private String bio;
 
     private String image;
 
-    public User(UserDTO userDTO) {
-        this.username = (StringUtils.isEmptyOrNull(userDTO.getUsername())) ? this.username : userDTO.getUsername();
-        this.email = (StringUtils.isEmptyOrNull(userDTO.getEmail())) ? this.email : userDTO.getEmail();
-        this.password = (StringUtils.isEmptyOrNull(userDTO.getPassword())) ? this.password : userDTO.getPassword();
-        this.bio = (StringUtils.isEmptyOrNull(userDTO.getBio())) ? this.bio : userDTO.getBio();
-        this.image = (StringUtils.isEmptyOrNull(userDTO.getImage())) ? this.image : userDTO.getImage();
+    protected User() { /*empty*/ }
+
+    public User(Long id, String email, String username, String password, String bio, String image) {
+        this.id = id;
+        this.email = email;
+        this.username = username;
+        this.password = password;
+        this.bio = bio;
+        this.image = image;
+    }
+
+    public User(final String email, final String username, final String password) {
+        this(null, email, username, password, null, null);
     }
 }
