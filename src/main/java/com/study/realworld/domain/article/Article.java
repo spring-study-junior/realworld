@@ -1,10 +1,10 @@
 package com.study.realworld.domain.article;
 
+import com.study.realworld.domain.TimeExtend;
 import com.study.realworld.domain.article.dto.ArticleUpdateDto;
 import com.study.realworld.domain.articletag.ArticleTag;
 import com.study.realworld.domain.comment.Comment;
 import com.study.realworld.domain.like.Like;
-import com.study.realworld.domain.TimeExtend;
 import com.study.realworld.domain.member.Member;
 import com.sun.istack.NotNull;
 import lombok.Builder;
