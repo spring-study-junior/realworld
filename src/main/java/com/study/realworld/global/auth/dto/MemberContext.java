@@ -1,7 +1,8 @@
 package com.study.realworld.global.auth.dto;
 
 import com.study.realworld.domain.member.Member;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
