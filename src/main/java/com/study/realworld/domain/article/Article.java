@@ -20,7 +20,8 @@ import java.util.List;
 @Entity(name = "article")
 @NoArgsConstructor
 public class Article extends TimeExtend implements Comparator<Article> {
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     @Column(name = "article_id")
     private Long id;
 
@@ -64,20 +65,10 @@ public class Article extends TimeExtend implements Comparator<Article> {
         this.member = member;
     }
 
-    public void update(ArticleUpdateDto dto) {
-        if(dto.getTitle() != null){
-            this.slug = dto.getTitle();
-        }
-
-        if(dto.getTitle() != null){
-            this.title = dto.getTitle();
-        }
-        if(dto.getBody() != null){
-            this.body = dto.getBody();
-        }
-        if(dto.getDescription()!=null){
-            this.description = dto.getDescription();
-        }
+    public void update(String title, String body, String description) {
+        this.title = title;
+        this.body = body;
+        this.description = description;
     }
 
     @Override

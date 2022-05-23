@@ -102,14 +102,14 @@ public class ArticleService {
         return articleId;
     }
 
-    public Long update(Long loginId, String slug, ArticleUpdateDto updateDto) {
+    public Long update(Long loginId, String slug, ArticleUpdateDto dto) {
         Article article = articleRepository.findArticleBySlug(slug)
                 .orElseThrow(() -> new NotExistArticleException("해당 게시글은 없습니다."));
 
         if (!article.getMember().getId().equals(loginId))
             throw new IllegalStateException("해당 게시글에 대한 수정 권한이 없습니다.");
 
-        article.update(updateDto);
+        article.update(dto.getTitle(), dto.getBody(), dto.getDescription());
         return article.getId();
     }
 
