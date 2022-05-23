@@ -12,11 +12,12 @@ public class ArticleCreateDto {
     private String description;
     private String body;
     private List<String> tagList;
+    private final static String BLANK = " ", UNDER_BAR = "_";
 
     public static Article from(ArticleCreateDto dto){
 
         return Article.builder()
-                .slug(dto.getTitle().toLowerCase(Locale.ROOT).replace(" ","-"))
+                .slug(dto.getTitle().toLowerCase(Locale.ROOT).replace(BLANK,UNDER_BAR))
                 .title(dto.getTitle())
                 .description(dto.getDescription())
                 .body(dto.getBody())
