@@ -1,6 +1,6 @@
-package com.study.realworld.repository;
+package com.study.realworld.domain.user.repository;
 
-import com.study.realworld.entity.User;
+import com.study.realworld.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

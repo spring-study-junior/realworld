@@ -1,10 +1,10 @@
-package com.study.realworld.controller;
+package com.study.realworld.domain.user.controller;
 
-import com.study.realworld.dto.UserRegisterRequestDTO;
-import com.study.realworld.dto.UserRegisterResponseDTO;
-import com.study.realworld.dto.UserUpdateRequestDTO;
-import com.study.realworld.dto.UserUpdateResponseDTO;
-import com.study.realworld.service.UserService;
+import com.study.realworld.domain.user.dto.UserRegisterRequestDTO;
+import com.study.realworld.domain.user.dto.UserRegisterResponseDTO;
+import com.study.realworld.domain.user.dto.UserUpdateRequestDTO;
+import com.study.realworld.domain.user.dto.UserUpdateResponseDTO;
+import com.study.realworld.domain.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;

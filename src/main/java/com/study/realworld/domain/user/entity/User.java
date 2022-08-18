@@ -1,4 +1,4 @@
-package com.study.realworld.entity;
+package com.study.realworld.domain.user.entity;
 
 import lombok.Builder;
 import lombok.Data;

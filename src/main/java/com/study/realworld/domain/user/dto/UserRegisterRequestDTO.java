@@ -1,8 +1,8 @@
-package com.study.realworld.dto;
+package com.study.realworld.domain.user.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.study.realworld.entity.User;
+import com.study.realworld.domain.user.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

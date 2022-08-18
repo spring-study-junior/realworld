@@ -1,4 +1,4 @@
-package com.study.realworld.config;
+package com.study.realworld.configuration.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;

@@ -1,4 +1,4 @@
-package com.study.realworld.config;
+package com.study.realworld.configuration.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

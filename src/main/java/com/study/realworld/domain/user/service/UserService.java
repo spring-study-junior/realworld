@@ -1,12 +1,12 @@
-package com.study.realworld.service;
+package com.study.realworld.domain.user.service;
 
-import com.study.realworld.dto.UserRegisterRequestDTO;
-import com.study.realworld.dto.UserRegisterResponseDTO;
-import com.study.realworld.dto.UserUpdateRequestDTO;
-import com.study.realworld.dto.UserUpdateResponseDTO;
-import com.study.realworld.entity.User;
-import com.study.realworld.repository.UserRepository;
-import com.study.realworld.util.StringUtils;
+import com.study.realworld.domain.user.repository.UserRepository;
+import com.study.realworld.domain.user.dto.UserRegisterRequestDTO;
+import com.study.realworld.domain.user.dto.UserRegisterResponseDTO;
+import com.study.realworld.domain.user.dto.UserUpdateRequestDTO;
+import com.study.realworld.domain.user.dto.UserUpdateResponseDTO;
+import com.study.realworld.domain.user.entity.User;
+import com.study.realworld.configuration.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -39,16 +39,16 @@ public class UserService {
     @Transactional
     public UserUpdateResponseDTO update(UserUpdateRequestDTO requestDTO) {
         User user = userRepository.findByEmail(requestDTO.getEmail()).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 Email 입니다."));
-        if (!StringUtils.isEmptyOrNull(requestDTO.getUsername())) {
+        if (StringUtils.isNotNullAndNotEmpty(requestDTO.getUsername())) {
             user.setUsername(requestDTO.getUsername());
         }
-        if (!StringUtils.isEmptyOrNull(requestDTO.getPassword())) {
+        if (StringUtils.isNotNullAndNotEmpty(requestDTO.getPassword())) {
             user.setPassword(passwordEncoder.encode(requestDTO.getPassword()));
         }
-        if (!StringUtils.isEmptyOrNull(requestDTO.getBio())) {
+        if (StringUtils.isNotNullAndNotEmpty(requestDTO.getBio())) {
             user.setBio(requestDTO.getBio());
         }
-        if (!StringUtils.isEmptyOrNull(requestDTO.getImage())) {
+        if (StringUtils.isNotNullAndNotEmpty(requestDTO.getImage())) {
             user.setImage(requestDTO.getImage());
         }
         return UserUpdateResponseDTO.builder()
