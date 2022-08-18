@@ -1,8 +1,9 @@
 package com.study.realworld.service;
 
-import com.study.realworld.dto.UserDTO;
-import com.study.realworld.dto.UserRegisterDTO;
-import com.study.realworld.dto.UserUpdateDTO;
+import com.study.realworld.dto.UserRegisterRequestDTO;
+import com.study.realworld.dto.UserRegisterResponseDTO;
+import com.study.realworld.dto.UserUpdateRequestDTO;
+import com.study.realworld.dto.UserUpdateResponseDTO;
 import com.study.realworld.entity.User;
 import com.study.realworld.repository.UserRepository;
 import com.study.realworld.util.StringUtils;
@@ -11,7 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -25,38 +25,37 @@ public class UserService {
     }
 
     @Transactional
-    public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
-
-    @Transactional
-    public UserDTO save(UserRegisterDTO userDTO) {
-        Optional<User> optionalUser = this.findByEmail(userDTO.getEmail());
-        if (optionalUser.isPresent()) {
+    public UserRegisterResponseDTO save(UserRegisterRequestDTO requestDTO) {
+        if (userRepository.existsByEmail(requestDTO.getEmail())) {
             throw new IllegalArgumentException("이미 존재하는 Email 입니다.");
         }
-        return new UserDTO(userRepository.save(userDTO.toEntityWithPasswordEncode(passwordEncoder)));
+        User user = userRepository.save(requestDTO.toEntityWithPasswordEncode(passwordEncoder));
+        return UserRegisterResponseDTO.builder()
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .build();
     }
 
     @Transactional
-    public UserDTO update(UserUpdateDTO userDTO) {
-        Optional<User> optionalUser = this.findByEmail(userDTO.getEmail());
-        if (optionalUser.isEmpty()) {
-            throw new IllegalArgumentException("존재하지 않는 Email 입니다.");
+    public UserUpdateResponseDTO update(UserUpdateRequestDTO requestDTO) {
+        User user = userRepository.findByEmail(requestDTO.getEmail()).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 Email 입니다."));
+        if (!StringUtils.isEmptyOrNull(requestDTO.getUsername())) {
+            user.setUsername(requestDTO.getUsername());
         }
-        User user = optionalUser.get();
-        if (!StringUtils.isEmptyOrNull(userDTO.getUsername())) {
-            user.setUsername(userDTO.getUsername());
+        if (!StringUtils.isEmptyOrNull(requestDTO.getPassword())) {
+            user.setPassword(passwordEncoder.encode(requestDTO.getPassword()));
         }
-        if (!StringUtils.isEmptyOrNull(userDTO.getPassword())) {
-            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        if (!StringUtils.isEmptyOrNull(requestDTO.getBio())) {
+            user.setBio(requestDTO.getBio());
         }
-        if (!StringUtils.isEmptyOrNull(userDTO.getBio())) {
-            user.setBio(userDTO.getBio());
+        if (!StringUtils.isEmptyOrNull(requestDTO.getImage())) {
+            user.setImage(requestDTO.getImage());
         }
-        if (!StringUtils.isEmptyOrNull(userDTO.getImage())) {
-            user.setImage(userDTO.getImage());
-        }
-        return new UserDTO(user);
+        return UserUpdateResponseDTO.builder()
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .bio(user.getBio())
+                .image(user.getImage())
+                .build();
     }
 }
