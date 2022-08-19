@@ -6,19 +6,21 @@ import com.study.realworld.domain.user.dto.UserUpdateRequestDTO;
 import com.study.realworld.domain.user.dto.UserUpdateResponseDTO;
 import com.study.realworld.domain.user.dto.UserLoginRequestDTO;
 import com.study.realworld.domain.user.dto.UserLoginResponseDTO;
+import com.study.realworld.domain.user.dto.UserInfoResponseDTO;
 import com.study.realworld.domain.user.repository.UserRepository;
 import com.study.realworld.domain.user.entity.User;
 import com.study.realworld.security.jwt.TokenDto;
 import com.study.realworld.security.jwt.TokenProvider;
+import com.study.realworld.security.util.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import javax.transaction.Transactional;
 
 @Service
 public class UserService {
@@ -82,5 +84,12 @@ public class UserService {
                 .email(requestDTO.getEmail())
                 .token(tokenDto.getAccessToken())
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public UserInfoResponseDTO getMyInfoSecurity() {
+        return userRepository.findById(SecurityUtils.getCurrentMemberId())
+                .map(UserInfoResponseDTO::of)
+                .orElseThrow(() -> new IllegalArgumentException("로그인 유저 정보가 없습니다"));
     }
 }
