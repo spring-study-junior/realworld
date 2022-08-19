@@ -33,3 +33,7 @@ logging.level:
 
 server:
   port: 8080
+
+jwt:
+  #realworld_example_study_group_backend_app
+  secret: "cmVhbHdvcmxkX2V4YW1wbGVfc3R1ZHlfZ3JvdXBfYmFja2VuZF9hcHA="
