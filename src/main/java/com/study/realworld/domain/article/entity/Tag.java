@@ -37,6 +37,6 @@ public class Tag {
     public Tag(final Long id, String body, final List<ArticleTag> articleTags) {
         this.id = id;
         this.body = body;
-        this.articleTags = articleTags;
+        this.articleTags = (articleTags == null ? new ArrayList<>() : articleTags);
     }
 }
