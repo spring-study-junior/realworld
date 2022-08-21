@@ -12,14 +12,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Column;
-import javax.persistence.ManyToOne;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.CascadeType;
 import javax.persistence.OneToOne;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -46,38 +41,23 @@ public class User {
     @Column(name = "image")
     private String image;
 
-    @Column(name = "parent_id")
-    private Long parentId;
-
-    @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id", referencedColumnName = "user_id", insertable = false, updatable = false)
-    private User parent;
-
-    @ToString.Exclude
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<User> follows = new ArrayList<>();
-
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "comment_id")
     private Comment comment;
 
     @Builder
-    public User(final Long id, final String email, final String username, final String password, final String bio, final String image, final Long parentId, final User parent, final List<User> follows, final Comment comment) {
+    public User(final Long id, final String email, final String username, final String password, final String bio, final String image, final Comment comment) {
         this.id = id;
         this.email = email;
         this.username = username;
         this.password = password;
         this.bio = bio;
         this.image = image;
-        this.parentId = parentId;
-        this.parent = parent;
-        this.follows = (follows == null ? new ArrayList<>() : follows);
         this.comment = comment;
     }
 
     public User(final String email, final String username, final String password) {
-        this(null, email, username, password, null, null, null, null, null, null);
+        this(null, email, username, password, null, null, null);
     }
 
     public void setUsername(final String username) {
