@@ -6,6 +6,7 @@ import com.study.realworld.domain.user.dto.UserRegisterRequestDTO;
 import com.study.realworld.domain.user.dto.UserRegisterResponseDTO;
 import com.study.realworld.domain.user.dto.UserUpdateRequestDTO;
 import com.study.realworld.domain.user.dto.UserUpdateResponseDTO;
+import com.study.realworld.domain.user.dto.UserInfoResponseDTO;
 import com.study.realworld.domain.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import javax.validation.Valid;
 
@@ -44,5 +46,10 @@ public class UserRestController {
     @PostMapping("/login")
     public UserLoginResponseDTO login(@Valid @RequestBody UserLoginRequestDTO requestDTO) {
         return userService.login(requestDTO);
+    }
+
+    @GetMapping
+    public UserInfoResponseDTO getUserInfo() {
+        return userService.getMyInfoSecurity();
     }
 }
