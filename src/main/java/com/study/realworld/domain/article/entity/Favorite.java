@@ -1,5 +1,6 @@
 package com.study.realworld.domain.article.entity;
 
+import com.study.realworld.domain.user.entity.User;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -9,21 +10,20 @@ import lombok.Builder;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Column;
 import javax.persistence.ManyToOne;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.GenerationType;
-import javax.persistence.Column;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @ToString
-public class ArticleTag {
-
+public class Favorite {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "article_tag_id")
+    @Column(name = "favorite_id")
     private Long id;
 
     @ToString.Exclude
@@ -33,29 +33,21 @@ public class ArticleTag {
 
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tag_id")
-    private Tag tag;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Builder
-    public ArticleTag(final Long id, final Article article, final Tag tag) {
+    public Favorite(final Long id, final Article article, final User user) {
         this.id = id;
         this.article = article;
-        this.tag = tag;
+        this.user = user;
     }
 
     public void setArticle(final Article article) {
         if (this.article != null) {
-            article.getArticleTags().remove(this);
+            article.getFavorites().remove(this);
         }
         this.article = article;
-        article.getArticleTags().add(this);
-    }
-
-    public void setTag(final Tag tag) {
-        if (this.tag != null) {
-            tag.getArticleTags().remove(this);
-        }
-        this.tag = tag;
-        tag.getArticleTags().add(this);
+        article.getFavorites().add(this);
     }
 }

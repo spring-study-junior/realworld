@@ -24,7 +24,8 @@ public class ProfileService {
 
     @Transactional(readOnly = true)
     public ProfileInfoResponseDTO getMyInfoSecurityAndUserInfoByUsername(final String username) {
-        User from = userRepository.findById(SecurityUtils.getCurrentMemberId()).orElseThrow(() -> new IllegalArgumentException("로그인 회원 정보가 없습니다"));
+        Long currentMemberId = SecurityUtils.getCurrentMemberId().orElseThrow(() -> new IllegalArgumentException("인증 정보가 없습니다."));
+        User from = userRepository.findById(currentMemberId).orElseThrow(() -> new IllegalArgumentException("회원 정보가 없습니다"));
         User to = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException(username + " 회원 정보가 없습니다"));
         boolean isExists = followRepository.existsByFromUserAndToUser(from, to);
         return ProfileInfoResponseDTO.builder()
@@ -37,7 +38,8 @@ public class ProfileService {
 
     @Transactional
     public ProfileInfoResponseDTO followUser(final String username) {
-        User from = userRepository.findById(SecurityUtils.getCurrentMemberId()).orElseThrow(() -> new IllegalArgumentException("로그인 회원 정보가 없습니다"));
+        Long currentMemberId = SecurityUtils.getCurrentMemberId().orElseThrow(() -> new IllegalArgumentException("인증 정보가 없습니다."));
+        User from = userRepository.findById(currentMemberId).orElseThrow(() -> new IllegalArgumentException("회원 정보가 없습니다"));
         User to = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException(username + " 회원 정보가 없습니다"));
         boolean isExists = followRepository.existsByFromUserAndToUser(from, to);
         if (!isExists && !from.getId().equals(to.getId())) {
@@ -54,7 +56,8 @@ public class ProfileService {
 
     @Transactional
     public ProfileInfoResponseDTO unFollowUser(final String username) {
-        User from = userRepository.findById(SecurityUtils.getCurrentMemberId()).orElseThrow(() -> new IllegalArgumentException("로그인 회원 정보가 없습니다"));
+        Long currentMemberId = SecurityUtils.getCurrentMemberId().orElseThrow(() -> new IllegalArgumentException("인증 정보가 없습니다."));
+        User from = userRepository.findById(currentMemberId).orElseThrow(() -> new IllegalArgumentException("회원 정보가 없습니다"));
         User to = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException(username + " 회원 정보가 없습니다"));
         followRepository.findByFromUserAndToUser(from, to).ifPresent(followRepository::delete);
         return ProfileInfoResponseDTO.builder()
