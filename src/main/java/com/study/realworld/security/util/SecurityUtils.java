@@ -5,14 +5,20 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.Optional;
+
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SecurityUtils {
 
-    public static Long getCurrentMemberId() {
+    public static Optional<Long> getCurrentMemberId() {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || authentication.getName() == null) {
-            throw new RuntimeException("Security Context에 인증 정보가 없습니다.");
+            return Optional.empty();
         }
-        return Long.parseLong(authentication.getName());
+        try {
+            return Optional.of(Long.parseLong(authentication.getName()));
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
     }
 }

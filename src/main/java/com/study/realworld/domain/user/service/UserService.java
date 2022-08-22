@@ -72,11 +72,8 @@ public class UserService {
                 .build();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public UserLoginResponseDTO login(final UserLoginRequestDTO requestDTO) {
-        if (!userRepository.existsByEmail(requestDTO.getEmail())) {
-            throw new IllegalArgumentException("존재하지 않는 Email 입니다.");
-        }
         UsernamePasswordAuthenticationToken authenticationToken = requestDTO.toAuthentication();
         Authentication authentication = managerBuilder.getObject().authenticate(authenticationToken);
         TokenDto tokenDto = tokenProvider.generateTokenDto(authentication);
@@ -88,7 +85,8 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserInfoResponseDTO getMyInfoSecurity() {
-        return userRepository.findById(SecurityUtils.getCurrentMemberId())
+        Long currentMemberId = SecurityUtils.getCurrentMemberId().orElseThrow(() -> new IllegalArgumentException("인증 정보가 없습니다."));
+        return userRepository.findById(currentMemberId)
                 .map(UserInfoResponseDTO::of)
                 .orElseThrow(() -> new IllegalArgumentException("로그인 회원 정보가 없습니다"));
     }

@@ -29,7 +29,11 @@ public class UserRegisterRequestDTO {
 
     public User toEntityWithPasswordEncode(PasswordEncoder encoder) {
         this.password = encoder.encode(password);
-        return new User(email, username, password);
+        return User.builder()
+                .email(email)
+                .username(username)
+                .password(password)
+                .build();
     }
 
     @Builder
