@@ -7,6 +7,11 @@ import com.study.realworld.domain.article.dto.ArticleFindAllResponseDTO;
 import com.study.realworld.domain.article.dto.ArticleFindAllRequestDTO;
 import com.study.realworld.domain.article.dto.ArticleFindAllFeedRequestDTO;
 import com.study.realworld.domain.article.dto.ArticleUpdateRequestDTO;
+import com.study.realworld.domain.article.dto.CommentSingleResponseDTO;
+import com.study.realworld.domain.article.dto.ArticleAuthorInfoDTO;
+import com.study.realworld.domain.article.dto.CommentCreateRequestDTO;
+import com.study.realworld.domain.article.dto.CommentMultipleResponseDTO;
+import com.study.realworld.domain.article.dto.CommentIdRequestDTO;
 import com.study.realworld.domain.article.entity.Article;
 import com.study.realworld.domain.article.entity.ArticleTag;
 import com.study.realworld.domain.article.entity.Favorite;
@@ -16,6 +21,8 @@ import com.study.realworld.domain.article.repository.ArticleTagRepository;
 import com.study.realworld.domain.article.repository.ArticleCustomRepository;
 import com.study.realworld.domain.article.repository.TagRepository;
 import com.study.realworld.domain.article.repository.FavoriteRepository;
+import com.study.realworld.domain.comment.entity.Comment;
+import com.study.realworld.domain.comment.repository.CommentRepository;
 import com.study.realworld.domain.profile.entity.Follow;
 import com.study.realworld.domain.profile.repository.FollowRepository;
 import com.study.realworld.domain.user.entity.User;
@@ -40,9 +47,10 @@ public class ArticleService {
     private final TagRepository tagRepository;
     private final FavoriteRepository favoriteRepository;
     private final FollowRepository followRepository;
+    private final CommentRepository commentRepository;
 
     @Autowired
-    public ArticleService(final UserRepository userRepository, final ArticleRepository articleRepository, final ArticleTagRepository articleTagRepository, final ArticleCustomRepository articleCustomRepository, final TagRepository tagRepository, final FavoriteRepository favoriteRepository, final FollowRepository followRepository) {
+    public ArticleService(final UserRepository userRepository, final ArticleRepository articleRepository, final ArticleTagRepository articleTagRepository, final ArticleCustomRepository articleCustomRepository, final TagRepository tagRepository, final FavoriteRepository favoriteRepository, final FollowRepository followRepository, final CommentRepository commentRepository) {
         this.userRepository = userRepository;
         this.articleRepository = articleRepository;
         this.articleTagRepository = articleTagRepository;
@@ -50,6 +58,7 @@ public class ArticleService {
         this.tagRepository = tagRepository;
         this.favoriteRepository = favoriteRepository;
         this.followRepository = followRepository;
+        this.commentRepository = commentRepository;
     }
 
     @Transactional
@@ -73,6 +82,8 @@ public class ArticleService {
                     .tag(tag)
                     .build();
             articleTagRepository.save(articleTag);
+            articleTag.setTag(tag);
+            articleTag.setArticle(article);
         }
         return ArticleSingleResponseDTO.builder()
                 .slug(article.getSlug())
@@ -92,7 +103,7 @@ public class ArticleService {
     public ArticleSingleResponseDTO findBySlug(final ArticleFindBySlugRequestDTO requestDTO) {
         Long currentMemberId = SecurityUtils.getCurrentMemberId().orElse(null);
         User me = (currentMemberId == null ? null : userRepository.findById(currentMemberId).orElse(null));
-        Optional<Article> optionalArticle = articleRepository.findBySlug(requestDTO.getSlug());
+        Optional<Article> optionalArticle = articleRepository.findBySlug(requestDTO.getSlug().toLowerCase());
         if (optionalArticle.isPresent()) {
             Article article = optionalArticle.get();
             List<String> tags = articleTagRepository.findAllByArticle(article).stream()
@@ -137,7 +148,7 @@ public class ArticleService {
     public ArticleSingleResponseDTO updateArticle(final ArticleFindBySlugRequestDTO slugRequestDTO, final ArticleUpdateRequestDTO updateRequestDTO) {
         Long currentMemberId = SecurityUtils.getCurrentMemberId().orElseThrow(() -> new IllegalArgumentException("인증 정보가 없습니다."));
         User me = userRepository.findById(currentMemberId).orElseThrow(() -> new IllegalArgumentException("회원 정보가 없습니다"));
-        Article article = articleRepository.findBySlug(slugRequestDTO.getSlug()).orElseThrow(() -> new IllegalArgumentException("게시글 정보가 없습니다"));
+        Article article = articleRepository.findBySlug(slugRequestDTO.getSlug().toLowerCase()).orElseThrow(() -> new IllegalArgumentException("게시글 정보가 없습니다"));
         List<String> tags = articleTagRepository.findAllByArticle(article).stream()
                 .filter(articleTag -> articleTag.getArticle().getSlug().equalsIgnoreCase(slugRequestDTO.getSlug()))
                 .map(articleTag -> articleTag.getTag().getBody())
@@ -172,6 +183,65 @@ public class ArticleService {
         Article article = articleRepository.findBySlug(requestDTO.getSlug().toLowerCase()).orElseThrow(() -> new IllegalArgumentException("게시글 정보가 없습니다"));
         article.getArticleTags().stream().map(ArticleTag::getTag).forEach(tagRepository::delete);
         articleRepository.delete(article);
+    }
+
+    @Transactional
+    public CommentSingleResponseDTO addCommentsToAnArticle(final ArticleFindBySlugRequestDTO slugRequestDTO, final CommentCreateRequestDTO addCommentRequestDTO) {
+        Long currentMemberId = SecurityUtils.getCurrentMemberId().orElseThrow(() -> new IllegalArgumentException("인증 정보가 없습니다."));
+        User me = userRepository.findById(currentMemberId).orElseThrow(() -> new IllegalArgumentException("회원 정보가 없습니다"));
+        Article article = articleRepository.findBySlug(slugRequestDTO.getSlug().toLowerCase()).orElseThrow(() -> new IllegalArgumentException("게시글 정보가 없습니다"));
+        Comment comment = commentRepository.save(Comment.builder()
+                .body(addCommentRequestDTO.getBody())
+                .build());
+        comment.setArticle(article);
+        return CommentSingleResponseDTO.builder()
+                .id(comment.getId())
+                .createAt(comment.getCreateAt())
+                .updateAt(comment.getUpdateAt())
+                .body(comment.getBody())
+                .author(ArticleAuthorInfoDTO.builder()
+                        .username(article.getAuthor().getUsername())
+                        .bio(article.getAuthor().getBio())
+                        .image(article.getAuthor().getImage())
+                        .following(me != null && followRepository.existsByFromUserAndToUser(me, article.getAuthor()))
+                        .build())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public CommentMultipleResponseDTO getCommentFromAnArticle(final ArticleFindBySlugRequestDTO slugRequestDTO) {
+        Long currentMemberId = SecurityUtils.getCurrentMemberId().orElse(null);
+        User me = (currentMemberId == null ? null : userRepository.findById(currentMemberId).orElse(null));
+        Article article = articleRepository.findBySlug(slugRequestDTO.getSlug().toLowerCase()).orElseThrow(() -> new IllegalArgumentException("게시글 정보가 없습니다"));
+        List<CommentSingleResponseDTO> response = new ArrayList<>();
+        for (final Comment comment : article.getComments()) {
+            response.add(CommentSingleResponseDTO.builder()
+                    .id(comment.getId())
+                    .createAt(comment.getCreateAt())
+                    .updateAt(comment.getUpdateAt())
+                    .body(comment.getBody())
+                    .author(ArticleAuthorInfoDTO.builder()
+                            .username(article.getAuthor().getUsername())
+                            .bio(article.getAuthor().getBio())
+                            .image(article.getAuthor().getImage())
+                            .following(me != null && followRepository.existsByFromUserAndToUser(me, article.getAuthor()))
+                            .build())
+                    .build());
+        }
+        return CommentMultipleResponseDTO.builder()
+                .comments(response)
+                .build();
+    }
+
+    public void deleteComment(final ArticleFindBySlugRequestDTO slugRequestDTO, final CommentIdRequestDTO commentIdRequestDTO) {
+        Long currentMemberId = SecurityUtils.getCurrentMemberId().orElseThrow(() -> new IllegalArgumentException("인증 정보가 없습니다."));
+        userRepository.findById(currentMemberId).orElseThrow(() -> new IllegalArgumentException("회원 정보가 없습니다"));
+        List<Comment> comments = articleCustomRepository.findByCommentIdAndArticleSlug(slugRequestDTO, commentIdRequestDTO);
+        if (comments.isEmpty()) {
+            throw new IllegalArgumentException("해당 게시글에 속한 댓글 정보가 없습니다.");
+        }
+        //comment.getArticle().getComments().remove(comment);
+        commentRepository.delete(comments.get(0));
     }
 
     private ArticleFindAllResponseDTO getArticleFindAllResponseDTO(final User me, final List<Article> articles) {
