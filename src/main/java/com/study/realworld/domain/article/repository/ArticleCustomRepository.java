@@ -2,7 +2,10 @@ package com.study.realworld.domain.article.repository;
 
 import com.study.realworld.domain.article.dto.ArticleFindAllFeedRequestDTO;
 import com.study.realworld.domain.article.dto.ArticleFindAllRequestDTO;
+import com.study.realworld.domain.article.dto.ArticleFindBySlugRequestDTO;
+import com.study.realworld.domain.article.dto.CommentIdRequestDTO;
 import com.study.realworld.domain.article.entity.Article;
+import com.study.realworld.domain.comment.entity.Comment;
 import com.study.realworld.domain.user.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -51,6 +54,17 @@ public class ArticleCustomRepository {
                 .setParameter("followingUsers", followingUsers)
                 .setFirstResult(requestDTO.getOffset())
                 .setMaxResults(requestDTO.getLimit())
+                .getResultList();
+    }
+
+    public List<Comment> findByCommentIdAndArticleSlug(final ArticleFindBySlugRequestDTO slugRequestDTO, final CommentIdRequestDTO commentIdRequestDTO) {
+        String jpql = "SELECT c FROM Comment c" +
+                " WHERE c.article.slug = :slug" +
+                " AND c.id = :id";
+        return em.createQuery(jpql, Comment.class)
+                .setParameter("id", commentIdRequestDTO.getId())
+                .setParameter("slug", slugRequestDTO.getSlug().toLowerCase())
+                .setMaxResults(1)
                 .getResultList();
     }
 }

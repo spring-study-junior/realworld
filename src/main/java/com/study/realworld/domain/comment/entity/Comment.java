@@ -54,7 +54,7 @@ public class Comment {
     @Builder
     public Comment(final Long id, final LocalDateTime createAt, final LocalDateTime updateAt, final String body, final User user, final Article article) {
         this.id = id;
-        this.createAt = createAt;
+        this.createAt = (createAt == null ? LocalDateTime.now() : createAt);
         this.updateAt = updateAt;
         this.body = body;
         this.user = user;
