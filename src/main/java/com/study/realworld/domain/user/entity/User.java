@@ -2,6 +2,7 @@ package com.study.realworld.domain.user.entity;
 
 import com.study.realworld.domain.article.entity.Article;
 import com.study.realworld.domain.comment.entity.Comment;
+import com.study.realworld.domain.profile.entity.Follow;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
@@ -56,8 +57,12 @@ public class User {
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Article> articles = new ArrayList<>();
 
+    @ToString.Exclude
+    @OneToMany(mappedBy = "fromUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Follow> follows = new ArrayList<>();
+
     @Builder
-    public User(final Long id, final String email, final String username, final String password, final String bio, final String image, final Comment comment, final List<Article> articles) {
+    public User(final Long id, final String email, final String username, final String password, final String bio, final String image, final Comment comment, final List<Article> articles, final List<Follow> follows) {
         this.id = id;
         this.email = email;
         this.username = username;
@@ -66,6 +71,7 @@ public class User {
         this.image = image;
         this.comment = comment;
         this.articles = (articles == null ? new ArrayList<>() : articles);
+        this.follows = (follows == null ? new ArrayList<>() : follows);
     }
 
     public void setUsername(final String username) {

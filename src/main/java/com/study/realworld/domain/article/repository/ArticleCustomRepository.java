@@ -67,4 +67,14 @@ public class ArticleCustomRepository {
                 .setMaxResults(1)
                 .getResultList();
     }
+
+    public List<Article> findBySlugWithArticleTag(final String slug) {
+        String jpql = "SELECT a FROM Article a" +
+                " join fetch a.articleTags" +
+                " WHERE a.slug = :slug";
+        return em.createQuery(jpql, Article.class)
+                .setParameter("slug", slug)
+                .setMaxResults(1)
+                .getResultList();
+    }
 }

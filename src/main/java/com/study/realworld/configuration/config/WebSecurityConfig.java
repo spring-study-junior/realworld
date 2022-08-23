@@ -49,7 +49,11 @@ public class WebSecurityConfig {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/api/users/login").permitAll()
+                .antMatchers("/api/tags").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/users").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/profiles/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/articles/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/articles/**/comments").permitAll()
                 .anyRequest().authenticated()
 
                 .and()
