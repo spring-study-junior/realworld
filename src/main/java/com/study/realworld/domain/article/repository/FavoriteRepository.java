@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
     boolean existsByArticleAndUser(final Article article, final User user);
-    long countByArticle(final Article article);
+    void deleteByArticleAndUser(final Article article, final User user);
 }

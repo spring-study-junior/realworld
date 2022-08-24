@@ -20,6 +20,7 @@ import com.study.realworld.domain.article.repository.ArticleRepository;
 import com.study.realworld.domain.article.repository.ArticleTagRepository;
 import com.study.realworld.domain.article.repository.ArticleCustomRepository;
 import com.study.realworld.domain.article.repository.TagRepository;
+import com.study.realworld.domain.article.repository.FavoriteRepository;
 import com.study.realworld.domain.comment.entity.Comment;
 import com.study.realworld.domain.comment.repository.CommentRepository;
 import com.study.realworld.domain.profile.entity.Follow;
@@ -45,9 +46,10 @@ public class ArticleService {
     private final TagRepository tagRepository;
     private final CommentRepository commentRepository;
     private final UserCustomRepository userCustomRepository;
+    private final FavoriteRepository favoriteRepository;
 
     @Autowired
-    public ArticleService(final UserRepository userRepository, final ArticleRepository articleRepository, final ArticleTagRepository articleTagRepository, final ArticleCustomRepository articleCustomRepository, final TagRepository tagRepository, final CommentRepository commentRepository, final UserCustomRepository userCustomRepository) {
+    public ArticleService(final UserRepository userRepository, final ArticleRepository articleRepository, final ArticleTagRepository articleTagRepository, final ArticleCustomRepository articleCustomRepository, final TagRepository tagRepository, final CommentRepository commentRepository, final UserCustomRepository userCustomRepository, final FavoriteRepository favoriteRepository) {
         this.userRepository = userRepository;
         this.articleRepository = articleRepository;
         this.articleTagRepository = articleTagRepository;
@@ -55,6 +57,7 @@ public class ArticleService {
         this.tagRepository = tagRepository;
         this.commentRepository = commentRepository;
         this.userCustomRepository = userCustomRepository;
+        this.favoriteRepository = favoriteRepository;
     }
 
     @Transactional
@@ -190,6 +193,35 @@ public class ArticleService {
         commentRepository.delete(comment);
     }
 
+    @Transactional
+    public ArticleSingleResponseDTO favoriteArticle(final ArticleFindBySlugRequestDTO requestDTO) {
+        Long currentMemberId = SecurityUtils.getCurrentMemberId().orElseThrow(() -> new IllegalArgumentException("인증 정보가 없습니다."));
+        User me = userCustomRepository.findByIdWithFollows(currentMemberId).stream().findFirst().orElseThrow(() -> new IllegalArgumentException("회원 정보가 없습니다."));
+        Article article = articleRepository.findBySlug(requestDTO.getSlug().toLowerCase()).orElseThrow(() -> new IllegalArgumentException("게시글 정보가 없습니다."));
+        List<String> tagNames = article.getArticleTags().stream().map(ArticleTag::getTag).map(Tag::getBody).collect(Collectors.toList());
+        boolean isExists = favoriteRepository.existsByArticleAndUser(article, me);
+        if (!isExists) {
+            Favorite favorite = Favorite.builder()
+                    .article(article)
+                    .user(me)
+                    .build();
+            favoriteRepository.save(favorite);
+            favorite.setArticle(article);
+            favorite.setUser(me);
+        }
+        return getArticleSingleResponseDTO(me, article, tagNames);
+    }
+
+    @Transactional
+    public ArticleSingleResponseDTO unFavoriteArticle(final ArticleFindBySlugRequestDTO requestDTO) {
+        Long currentMemberId = SecurityUtils.getCurrentMemberId().orElseThrow(() -> new IllegalArgumentException("인증 정보가 없습니다."));
+        User me = userCustomRepository.findByIdWithFollows(currentMemberId).stream().findFirst().orElseThrow(() -> new IllegalArgumentException("회원 정보가 없습니다."));
+        Article article = articleRepository.findBySlug(requestDTO.getSlug().toLowerCase()).orElseThrow(() -> new IllegalArgumentException("게시글 정보가 없습니다."));
+        List<String> tagNames = article.getArticleTags().stream().map(ArticleTag::getTag).map(Tag::getBody).collect(Collectors.toList());
+        favoriteRepository.deleteByArticleAndUser(article, me);
+        return getArticleSingleResponseDTO(me, article, tagNames);
+    }
+
     private ArticleFindAllResponseDTO getArticleFindAllResponseDTO(final User me, final List<Article> articles) {
         List<ArticleSingleResponseDTO> response = new ArrayList<>();
         for (final Article article : articles) {
@@ -217,13 +249,13 @@ public class ArticleService {
                 .build();
     }
 
-    private ArticleSingleResponseDTO getArticleSingleResponseDTO(User me, Article article, List<String> tags) {
+    private ArticleSingleResponseDTO getArticleSingleResponseDTO(User me, Article article, List<String> tagNames) {
         return ArticleSingleResponseDTO.builder()
                 .slug(article.getSlug())
                 .title(article.getTitle())
                 .description(article.getDescription())
                 .body(article.getBody())
-                .tagList(tags)
+                .tagList(tagNames)
                 .createdAt(article.getCreateAt())
                 .updatedAt(article.getUpdateAt())
                 .favorited(me != null && article.getFavorites().stream().map(Favorite::getUser).collect(Collectors.toList()).contains(me))
