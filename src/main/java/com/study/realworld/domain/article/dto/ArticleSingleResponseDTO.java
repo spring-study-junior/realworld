@@ -2,8 +2,6 @@ package com.study.realworld.domain.article.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.study.realworld.domain.user.dto.UserInfoResponseDTO;
-import com.study.realworld.domain.user.entity.User;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,10 +25,10 @@ public class ArticleSingleResponseDTO {
     private LocalDateTime updatedAt;
     private boolean favorited;
     private Long favoritesCount;
-    private UserInfoResponseDTO author;
+    private ArticleAuthorInfoDTO author;
 
     @Builder
-    public ArticleSingleResponseDTO(final String slug, final String title, final String description, final String body, final List<String> tagList, final LocalDateTime createdAt, final LocalDateTime updatedAt, final boolean favorited, final Long favoritesCount, final User author) {
+    public ArticleSingleResponseDTO(final String slug, final String title, final String description, final String body, final List<String> tagList, final LocalDateTime createdAt, final LocalDateTime updatedAt, final boolean favorited, final Long favoritesCount, final ArticleAuthorInfoDTO author) {
         this.slug = slug;
         this.title = title;
         this.description = description;
@@ -40,6 +38,6 @@ public class ArticleSingleResponseDTO {
         this.updatedAt = updatedAt;
         this.favorited = favorited;
         this.favoritesCount = (favoritesCount == null ? 0 : favoritesCount);
-        this.author = UserInfoResponseDTO.of(author);
+        this.author = author;
     }
 }

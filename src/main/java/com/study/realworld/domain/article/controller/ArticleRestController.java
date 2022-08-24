@@ -83,4 +83,14 @@ public class ArticleRestController {
         articleService.deleteComment(slugRequestDTO, commentIdRequestDTO);
         return "ok";
     }
+
+    @PostMapping("/{slug}/favorite")
+    public ArticleSingleResponseDTO favoriteArticle(@PathVariable("slug") ArticleFindBySlugRequestDTO requestDTO) {
+        return articleService.favoriteArticle(requestDTO);
+    }
+
+    @DeleteMapping("/{slug}/favorite")
+    public ArticleSingleResponseDTO unFavoriteArticle(@PathVariable("slug") ArticleFindBySlugRequestDTO requestDTO) {
+        return articleService.unFavoriteArticle(requestDTO);
+    }
 }

@@ -28,7 +28,7 @@ public class ProfileRestController {
 
     @GetMapping("/{username}")
     public ProfileInfoResponseDTO getUserProfile(@PathVariable("username") ProfileInfoRequestDTO requestDTO) {
-        return profileService.getMyInfoSecurityAndUserInfoByUsername(requestDTO.getUsername());
+        return profileService.getProfile(requestDTO.getUsername());
     }
 
     @PostMapping("/{username}/follow")

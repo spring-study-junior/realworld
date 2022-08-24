@@ -50,4 +50,12 @@ public class Favorite {
         this.article = article;
         article.getFavorites().add(this);
     }
+
+    public void setUser(final User user) {
+        if (this.user != null) {
+            user.getFavorites().remove(this);
+        }
+        this.user = user;
+        user.getFavorites().add(this);
+    }
 }

@@ -6,9 +6,14 @@ import com.study.realworld.domain.profile.repository.FollowRepository;
 import com.study.realworld.domain.user.entity.User;
 import com.study.realworld.domain.user.repository.UserRepository;
 import com.study.realworld.security.util.SecurityUtils;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.stream.Collectors;
 
 @Service
 public class ProfileService {
@@ -23,24 +28,23 @@ public class ProfileService {
     }
 
     @Transactional(readOnly = true)
-    public ProfileInfoResponseDTO getMyInfoSecurityAndUserInfoByUsername(final String username) {
-        Long currentMemberId = SecurityUtils.getCurrentMemberId().orElseThrow(() -> new IllegalArgumentException("인증 정보가 없습니다."));
-        User from = userRepository.findById(currentMemberId).orElseThrow(() -> new IllegalArgumentException("회원 정보가 없습니다"));
-        User to = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException(username + " 회원 정보가 없습니다"));
-        boolean isExists = followRepository.existsByFromUserAndToUser(from, to);
+    public ProfileInfoResponseDTO getProfile(final String username) {
+        ProfileInfo profileInfo = getProfileInfoOptionalSecurity(username);
+        User from = profileInfo.getFrom();
+        User to = profileInfo.getTo();
         return ProfileInfoResponseDTO.builder()
                 .username(to.getUsername())
                 .bio(to.getBio())
                 .image(to.getImage())
-                .following(isExists)
+                .following(from != null && from.getFollows() != null && from.getFollows().stream().map(Follow::getToUser).collect(Collectors.toList()).contains(to))
                 .build();
     }
 
     @Transactional
     public ProfileInfoResponseDTO followUser(final String username) {
-        Long currentMemberId = SecurityUtils.getCurrentMemberId().orElseThrow(() -> new IllegalArgumentException("인증 정보가 없습니다."));
-        User from = userRepository.findById(currentMemberId).orElseThrow(() -> new IllegalArgumentException("회원 정보가 없습니다"));
-        User to = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException(username + " 회원 정보가 없습니다"));
+        ProfileInfo profileInfo = getProfileInfoWithSecurity(username);
+        User from = profileInfo.getFrom();
+        User to = profileInfo.getTo();
         boolean isExists = followRepository.existsByFromUserAndToUser(from, to);
         if (!isExists && !from.getId().equals(to.getId())) {
             Follow follow = new Follow(from, to);
@@ -50,15 +54,15 @@ public class ProfileService {
                 .username(to.getUsername())
                 .bio(to.getBio())
                 .image(to.getImage())
-                .following(isExists)
+                .following(true)
                 .build();
     }
 
     @Transactional
     public ProfileInfoResponseDTO unFollowUser(final String username) {
-        Long currentMemberId = SecurityUtils.getCurrentMemberId().orElseThrow(() -> new IllegalArgumentException("인증 정보가 없습니다."));
-        User from = userRepository.findById(currentMemberId).orElseThrow(() -> new IllegalArgumentException("회원 정보가 없습니다"));
-        User to = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException(username + " 회원 정보가 없습니다"));
+        ProfileInfo profileInfo = getProfileInfoWithSecurity(username);
+        User from = profileInfo.getFrom();
+        User to = profileInfo.getTo();
         followRepository.findByFromUserAndToUser(from, to).ifPresent(followRepository::delete);
         return ProfileInfoResponseDTO.builder()
                 .username(to.getUsername())
@@ -66,5 +70,31 @@ public class ProfileService {
                 .image(to.getImage())
                 .following(false)
                 .build();
+    }
+
+    private ProfileInfo getProfileInfoOptionalSecurity(final String username) {
+        Long currentMemberId = SecurityUtils.getCurrentMemberId().orElse(null);
+        User from = (currentMemberId == null ? null : userRepository.findById(currentMemberId).orElse(null));
+        User to = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException(username + " 회원 정보가 없습니다"));
+        return new ProfileInfo(from, to);
+    }
+
+    private ProfileInfo getProfileInfoWithSecurity(final String username) {
+        Long currentMemberId = SecurityUtils.getCurrentMemberId().orElseThrow(() -> new IllegalArgumentException("인증 정보가 없습니다."));
+        User from = userRepository.findById(currentMemberId).orElseThrow(() -> new IllegalArgumentException("회원 정보가 없습니다"));
+        User to = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException(username + " 회원 정보가 없습니다"));
+        return new ProfileInfo(from, to);
+    }
+
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    private static class ProfileInfo {
+        private User from;
+        private User to;
+
+        public ProfileInfo(final User from, final User to) {
+            this.from = from;
+            this.to = to;
+        }
     }
 }
